@@ -1,0 +1,43 @@
+import { userRepository } from "../../../Containers/Users/GetAllUsers";
+import { getAllUsersUseCase } from "../../../Containers/Users/GetAllUsers";
+import { GetUserDto } from "../../../Data/user/getUserDto";
+import { Users } from "../../../Entities/user";
+
+describe("Get all user use case", () => {
+  it("Should get all users", async () => {
+    const userRepositoryData:Users[] = [
+      {
+        _id: "b1776965-d6ed-4a8e-8ddc-5650b5b00fda",
+        first_name: "Test2233",
+        last_name: "Test",
+        date_of_birth: "1989-01-07",
+        email: "Test",
+        user_type: "Test",
+        active: false,
+        created_at: new Date("2023-05-15T02:15:17.727Z"),
+        user_image: "test.png",
+        access_code: '123456',
+        password: 'pass'
+      },
+    ];
+    const userData:GetUserDto[] = [
+      {
+        id: "b1776965-d6ed-4a8e-8ddc-5650b5b00fda",
+        firstName: "Test2233",
+        lastName: "Test",
+        dateOfBirth: "1989-01-07",
+        email: "Test",
+        userType: "Test",
+        active: false,
+        createdAt: new Date("2023-05-15T02:15:17.727Z"),
+        userImage: "test.png",
+        accessCode: '123456'
+      },
+    ]
+    jest
+      .spyOn(userRepository, "getAll")
+      .mockImplementation(() => Promise.resolve(userRepositoryData));
+    const data = await getAllUsersUseCase.execute();
+    expect(data).toEqual(userData);
+  });
+});

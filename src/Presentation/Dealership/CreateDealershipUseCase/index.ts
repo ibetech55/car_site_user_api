@@ -1,0 +1,173 @@
+import { FileArray, UploadedFile } from "express-fileupload";
+import {
+  CreateDealershipDto,
+  GetCreatedUser,
+} from "../../../Data/Dealership/CreateDealershipDto";
+import { IAddressRepository } from "../../../Repositories/Address/IAddressRepository";
+import { IDealershipRepository } from "../../../Repositories/Dealership/IDealershipRespository";
+import { IUserRepository } from "../../../Repositories/User/IUserRespository";
+import { FileHandler } from "../../../Utils/FileHandler";
+import { HandleAccesCode } from "../../../Utils/HandleAccesCode";
+import { GenerateImageName } from "../../../Utils/GenerateImageName";
+import { GeneratePassword } from "../../../Utils/GeneratePassword";
+import { CreateAddressDto } from "../../../Data/address/createAddressDto";
+import { Users } from "../../../Entities/user";
+import { AccessCodeProviderDealershipDto } from "../../../Queue/QueueDtos/AccessCodeProviderDto";
+import {
+  ACCESS_CODE_DEALERSHIP,
+  REGISTER_AUTH_USER,
+  REGISTER_USER_CAR_API,
+} from "../../../Queue/types";
+import { RegisterAuthUserProviderDto } from "../../../Queue/QueueDtos/RegisterAuthUserProviderDto";
+import { RegisterCarUserProviderDto } from "../../../Queue/QueueDtos/RegisterCarUserProviderDto";
+import { AppError } from "../../../ErrorHandler/AppError";
+import { CreateUserDto } from "../../../Data/User/createUserDto";
+import { RabbitMq } from "../../../Queue/RabbitMq/RabbitMq";
+import { IAccessRepository } from "../../../Repositories/Access/IAccessRepository";
+import { REGISTER_DEALERSHIP_ACCESS_CODE } from "../../../Configs/Constants/AccessTypes";
+import { GetUserMapper } from "../../../Mappers/GetUserMapper";
+import { HandleToken } from "../../../Utils/HandleToken";
+import { ACCESS_CODE_SECRET_KEY, CREATED_USER_SECRET_KEY } from "../../../Configs/Enviroment/EnviromentVariables";
+import { ACCOUNT_CREATED } from "../../../Configs/Constants/AccountStatus";
+
+class CreateDealershipUseCase {
+  private readonly _dealershipRepository: IDealershipRepository;
+  private readonly _userRepository: IUserRepository;
+  private readonly _addressRepository: IAddressRepository;
+  private readonly _accessRepository: IAccessRepository;
+  private readonly _rabbitMq: RabbitMq;
+  private readonly _handleAccessCode: HandleAccesCode;
+  private readonly _generatePassword: GeneratePassword;
+  private readonly _fileHandler: FileHandler;
+  private readonly _generateImageName: GenerateImageName;
+  private readonly _handleToken: HandleToken;
+
+  constructor(
+    dealershipRepository: IDealershipRepository,
+    userRepository: IUserRepository,
+    addressRepository: IAddressRepository,
+    accessRepository: IAccessRepository,
+    rabbitMq: RabbitMq,
+    handleAccessCode: HandleAccesCode,
+    generatePassword: GeneratePassword,
+    fileHandler: FileHandler,
+    generateImageName: GenerateImageName,
+    handleToken: HandleToken
+  ) {
+    this._dealershipRepository = dealershipRepository;
+    this._userRepository = userRepository;
+    this._addressRepository = addressRepository;
+    this._accessRepository = accessRepository;
+    this._rabbitMq = rabbitMq;
+    this._handleAccessCode = handleAccessCode;
+    this._generatePassword = generatePassword;
+    this._fileHandler = fileHandler;
+    this._generateImageName = generateImageName;
+    this._handleToken = handleToken;
+  }
+
+  async execute(
+    values: CreateDealershipDto,
+    file?: FileArray
+  ): Promise<string> {
+    const userRequestData: CreateUserDto = JSON.parse(values.user as string);
+    const checkEmail = await this._userRepository.getUserByEmail(
+      userRequestData.email
+    );
+    if (checkEmail) {
+      throw new AppError("E-mail already exists", 400);
+    }
+    let dealershipLogo: UploadedFile;
+    let imageName: string;
+    if (file) {
+      dealershipLogo = file.dealershipLogo as UploadedFile;
+      imageName = this._generateImageName.handle(
+        dealershipLogo.mimetype.split("/")[1]
+      );
+    }
+
+    const addreddRequestData = userRequestData.address as CreateAddressDto;
+    const addressData = await this._addressRepository.create({
+      state: addreddRequestData.state,
+      city: addreddRequestData.city,
+      street: addreddRequestData.street,
+      zip_code: addreddRequestData.zipCode,
+    });
+
+    const userData: Users = await this._userRepository.create({
+      email: userRequestData.email,
+      user_type: "dealership",
+      phone_number: userRequestData.phoneNumber,
+      password: this._generatePassword.encryptPassword(
+        userRequestData.password
+      ),
+      active: false,
+      account_status: ACCOUNT_CREATED,
+      address_id: addressData._id,
+    });
+
+    const dealershipData = await this._dealershipRepository.create({
+      contact_name: values.contactName,
+      dealership_name: values.dealershipName,
+      dealership_logo: dealershipLogo ? imageName : null,
+      user_id: userData._id,
+    });
+    const accessData = await this._accessRepository.create({
+      access_code: this._handleAccessCode.generateAccessCode(),
+      access_code_token: this._handleAccessCode.generateAccessCodeToken(
+        userData._id
+      ),
+      active: true,
+      type: REGISTER_DEALERSHIP_ACCESS_CODE,
+      user_id: userData._id,
+    });
+    if (file) {
+      await this._fileHandler.postFiles(dealershipLogo.data, imageName);
+    }
+
+    this._rabbitMq.publish<AccessCodeProviderDealershipDto>(
+      ACCESS_CODE_DEALERSHIP,
+      {
+        user_id: userData._id,
+        dealership_name: dealershipData.dealership_name,
+        email: userData.email,
+        access_code: accessData.access_code,
+        access_code_token: accessData.access_code_token,
+      }
+    );
+
+    this._rabbitMq.publish<RegisterAuthUserProviderDto>(REGISTER_AUTH_USER, {
+      user_id: userData._id,
+      dealership_name: dealershipData.dealership_name,
+      email: userData.email,
+      active: userData.active,
+      type: userData.user_type,
+      password: userData.password,
+      access_code: accessData.access_code,
+    });
+
+    this._rabbitMq.publish<RegisterCarUserProviderDto>(REGISTER_USER_CAR_API, {
+      user_id: userData._id,
+      dealership_name: dealershipData.dealership_name,
+      email: userData.email,
+      type: userData.user_type,
+      phone_number: userData.phone_number,
+    });
+
+    const createdUserToken = this._handleToken.generateToken<GetCreatedUser>(
+      {
+        id: userData._id,
+        email: userData.email,
+        userType: userData.user_type,
+        active: userData.active,
+        accountStatus: userData.account_status,
+      },
+      CREATED_USER_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    return createdUserToken;
+  }
+}
+
+export { CreateDealershipUseCase };

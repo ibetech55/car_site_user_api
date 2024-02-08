@@ -1,0 +1,448 @@
+openapi: 3.0.0
+components:
+  securitySchemes:
+    jwtCookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth_token
+      description: Use JWT token in a cookie for authentication
+info:
+  title: Car Site Users API
+  version: 1.0.0
+  description: API for managing users on Car Site Api
+servers:
+  - url: http://localhost:5001
+    description: Development server
+paths:
+  "/api/user":
+    get:
+      summary: Get a list of all users
+      tags:
+        - User
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/User"
+  "/api/user/{id}":
+    get:
+      summary: Get a user by id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  makeName:
+                    type: string
+                  origin:
+                    type: string
+                  makeLogo:
+                    type: string
+                  active:
+                    type: boolean
+                  createdAt:
+                    type: string
+  "/api/user/confirmCreatedUser/{token}":
+    get:
+      summary: Confirm created user
+      tags:
+        - User
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Created user token
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account successfully created
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request  
+  "/api/user/changeUserPassword/{id}":
+    put:
+      summary: Change User Password
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Password updated
+        "400":
+          description: Bad request
+  "/api/user/getByEmail/{email}":
+    get:
+      summary: Get a user by email
+      tags:
+        - User
+      parameters:
+        - name: email
+          in: path
+          required: true
+          description: Email of the user
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/User"
+  "/api/dealership":
+    post:
+      summary: Create a new dealership
+      tags: 
+        - 'Dealership'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                contactName:
+                  type: string
+                dealershipName:
+                  type: string
+                dealershipLogo:
+                  type: string
+                  format: binary
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    userType:
+                      type: string
+                    password:
+                      type: string
+                    phoneNumber:
+                      type: string
+                    address:
+                      type: object
+                      properties:
+                        state:
+                          type: string
+                        city:
+                          type: string
+                        street:
+                          type: string
+                        zipCode:
+                          type: string                     
+      responses:
+        "201":
+          description: Dealership created successfully
+        "400":
+          description: Bad request
+    get:
+      summary: Get a list of all dealerships
+      tags:
+        - Dealership
+      responses:
+        "200":
+          description: Successful response
+  "/api/dealership/{id}":
+    get:
+      summary: Get a dealership by id
+      tags:
+        - Dealership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the dealership
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response       
+    put:
+      summary: Update a dealership
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the dealership
+          schema:
+            type: string
+      tags: 
+        - 'Dealership'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dealership:
+                  type: object
+                  properties:
+                    dealershipName:
+                      type: string
+                    contactName:
+                      type: string
+                user:
+                  type: object
+                  properties:
+                    active:
+                      type: boolean
+                    phoneNumber:
+                      type: string
+                address:
+                  type: object
+                  properties:
+                    state:
+                      type: string
+                    city:
+                      type: string
+                    street:
+                      type: string
+                    zipCode:
+                      type: string                     
+      responses:
+        "200":
+          description: Dealership updated successfully
+        "400":
+          description: Bad request
+    delete:
+      summary: Delete Dealership
+      tags:
+        - 'Dealership'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delete Dealership
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully deleted
+  "/api/privateUser":
+    post:
+      summary: Create a new private user
+      tags: 
+        - 'Private User'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                dateOfBirth:
+                  type: string;
+                userImage:
+                  type: string
+                  format: binary
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    userType:
+                      type: string
+                    password:
+                      type: string
+                    phoneNumber:
+                      type: string
+                    address:
+                      type: object
+                      properties:
+                        state:
+                          type: string
+                        city:
+                          type: string
+                        street:
+                          type: string
+                        zipCode:
+                          type: string                     
+      responses:
+        "201":
+          description: Dealership created successfully
+        "400":
+          description: Bad request
+    get:
+      summary: Get a list of all private users
+      tags:
+        - 'Private User'
+      responses:
+        "200":
+          description: Successful response
+  "/api/privateUser/{id}":
+    get:
+      summary: Get a private user by id
+      tags:
+        - 'Private User'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the private user
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+    put:
+      summary: Update a private user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the private user
+          schema:
+            type: string
+      tags: 
+        - 'Private User'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                privateUser:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    dateOfBirth:
+                      type: string
+                user:
+                  type: object
+                  properties:
+                    active:
+                      type: boolean
+                    phoneNumber:
+                      type: string
+                address:
+                  type: object
+                  properties:
+                    state:
+                      type: string
+                    city:
+                      type: string
+                    street:
+                      type: string
+                    zipCode:
+                      type: string                     
+      responses:
+        "200":
+          description: Dealership updated successfully
+        "400":
+          description: Bad request
+    delete:
+      summary: Delete Private User
+      tags:
+        - 'Private User'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Delete Private User
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully deleted
+  "/api/access/confirmAccessCode/{id}":
+    get:
+      summary: Confirm User Access Code
+      tags:
+        - Access
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the user
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                accessCode:
+                  type: string
+                accessCodeToken:
+                  type: string
+      responses:
+        "200":
+          description: Access code updated
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request
+  "/api/access/{token}":
+    get:
+      summary: Get by access code token
+      tags:
+        - Access
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: Get Access data by access code token
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Access code updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  accountStatus:
+                    type: string              
+        "400":
+          description: Bad request
