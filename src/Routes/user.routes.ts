@@ -3,6 +3,7 @@ import { getAllUsersController } from "../Containers/Users/GetAllUsers";
 import { getUserByIdController } from "../Containers/Users/GetUserById";
 import { changeUserPasswordController } from "../Containers/Users/ChangePassword";
 import { confirmCreatedUserController } from "../Containers/Users/ConfirmCreatedUser";
+import { getLoggedUserController } from "../Containers/Users/GetLoggedUser";
 
 const userRoutes = Router();
 
@@ -20,6 +21,10 @@ userRoutes.put("/user/changeUserPassword/:id", (req, res) =>
 
 userRoutes.get("/user/confirmCreatedUser/:token", (req, res) =>
   confirmCreatedUserController.handle(req, res)
+);
+
+userRoutes.get("/user/loggedUser/:id", (req, res) =>
+  getLoggedUserController.handle(req, res)
 );
 
 export { userRoutes };

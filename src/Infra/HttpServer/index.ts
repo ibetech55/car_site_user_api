@@ -13,6 +13,7 @@ import { CAR_SITE_FRONTEND_URL } from "../../Configs/Enviroment/EnviromentVariab
 import { rabbitMq } from "../../Queue/RabbitMq";
 class HttpServer {
   app: express.Express;
+  private corsOrigins = [CAR_SITE_FRONTEND_URL, "http://localhost:3000"]
   constructor() {
     this.app = express();
     this.middlewares();
@@ -51,7 +52,12 @@ class HttpServer {
   middlewares() {
     this.app.use(express.json());
     this.app.use(expressFileUpload());
-    this.app.use(cors({ origin: [CAR_SITE_FRONTEND_URL], credentials: true }));
+    this.app.use(
+      cors({
+        origin: this.corsOrigins,
+        credentials: true,
+      })
+    );
     this.app.use(morgan("dev"));
   }
 
@@ -75,15 +81,20 @@ class HttpServer {
 
   defaultHeaders() {
     this.app.use((req, res, next) => {
+      const origin = this.corsOrigins.includes(
+        req.header("origin")
+      )
+        ? req.headers.origin
+        : null;
       res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader("Access-Control-Allow-Origin", `${CAR_SITE_FRONTEND_URL}`);
+      res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept"
       );
       res.setHeader(
         "Access-Control-Allow-Methods",
-        "GET, POST, PATCH, DELETE, OPTIONS"
+        "GET, POST, PATCH, DELETE, OPTIONS, PUT"
       );
       next();
     });
