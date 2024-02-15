@@ -126,6 +126,34 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/User"
+  "/api/user/loggedUser/{id}":
+    get:
+      summary: Get Logged User
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Logged User data by id
+      responses:
+        "200":
+          description: Access code updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  accountStatus:
+                    type: string  
+                  active:
+                    type: boolean  
+                  userType:
+                    type: string              
+        "400":
+          description: Bad request
   "/api/dealership":
     post:
       summary: Create a new dealership
@@ -446,3 +474,4 @@ paths:
                     type: string              
         "400":
           description: Bad request
+
