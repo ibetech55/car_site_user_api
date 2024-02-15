@@ -60,7 +60,7 @@ class UpdatePrivateUserUseCase {
         updateCarUserProvider.last_name = values.privateUser.lastName;
       }
       if (values.privateUser.dateOfBirth) {
-        updatePrivateUserValues.first_name = values.privateUser.dateOfBirth;
+        updatePrivateUserValues.date_of_birth = values.privateUser.dateOfBirth;
       }
 
       await this._privateUserRepository.update(
