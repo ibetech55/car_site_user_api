@@ -10,7 +10,6 @@ export class GetUserMapper {
       phoneNumber:values.phone_number,
       active: values.active,
       createdAt: values.created_at,
-      accountStatus: values.account_status,
       address: {
         id: values.addresses._id,
         state: values.addresses.state,

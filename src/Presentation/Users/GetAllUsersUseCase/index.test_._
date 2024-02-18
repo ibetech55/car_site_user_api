@@ -1,6 +1,6 @@
 import { userRepository } from "../../../Containers/Users/GetAllUsers";
 import { getAllUsersUseCase } from "../../../Containers/Users/GetAllUsers";
-import { GetUserDto } from "../../../Data/user/getUserDto";
+import { GetUserDto } from "../../../Data/User/getUserDto";
 import { Users } from "../../../Entities/user";
 
 describe("Get all user use case", () => {

@@ -20,7 +20,6 @@ class GetDealershipByIdUseCase {
         userType: data.users.user_type,
         active: data.users.active,
         createdAt: data.users.created_at,
-        accessCode: data.users.access_code,
         address: {
           id: data.users.addresses._id,
           state: data.users.addresses.state,

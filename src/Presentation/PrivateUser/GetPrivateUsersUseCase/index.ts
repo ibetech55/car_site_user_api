@@ -21,7 +21,6 @@ export class GetPrivateUsersUseCase {
         userType: x.users.user_type,
         active: false,
         createdAt: x.users.created_at,
-        accessCode: x.users.access_code,
         address: {
           id: x.users.addresses._id,
           state: x.users.addresses.state,

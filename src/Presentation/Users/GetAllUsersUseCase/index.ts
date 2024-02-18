@@ -1,4 +1,4 @@
-import { GetUserDto } from "../../../Data/user/getUserDto";
+import { GetUserDto } from "../../../Data/User/getUserDto";
 import { Users } from "../../../Entities/user";
 import { GetUserMapper } from "../../../Mappers/GetUserMapper";
 import { IUserRepository } from "../../../Repositories/User/IUserRespository";
