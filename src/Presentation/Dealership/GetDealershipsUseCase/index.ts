@@ -28,6 +28,7 @@ class GetDealershipsUseCase {
           zipCode: x.users.addresses.zip_code,
         },
         phoneNumber: x.users.phone_number,
+        accountStatus: x.users.account_status
       },
     }));
     return dealershipData;

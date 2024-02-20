@@ -23,6 +23,7 @@ export class GetPrivateUserByIdUseCase {
             userType: data.users.user_type,
             active: false,
             createdAt: data.users.created_at,
+            accountStatus: data.users.account_status,
             address: {
                 id: data.users.addresses._id,
                 state: data.users.addresses.state,
