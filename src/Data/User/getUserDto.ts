@@ -10,6 +10,7 @@ export interface GetUserDto {
   address: GetAddressDto;
   phoneNumber: string;
   userType: string;
+  accountStatus: string;
   privateUser?: Omit<GetPrivateUserDto, 'user'>
   dealership?: Omit<GetDealershipDto, 'user'>
 }
