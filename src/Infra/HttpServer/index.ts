@@ -9,7 +9,7 @@ import YAML from "yamljs";
 import { AppError } from "../../ErrorHandler/AppError";
 import "../../Configs/Enviroment";
 import { apiRoutes } from "../../Routes";
-import { CAR_SITE_FRONTEND_URL } from "../../Configs/Enviroment/EnviromentVariables";
+import { CAR_SITE_FRONTEND_URL, USER_API_DOMAIN } from "../../Configs/Enviroment/EnviromentVariables";
 import { rabbitMq } from "../../Queue/RabbitMq";
 class HttpServer {
   app: express.Express;
@@ -46,7 +46,7 @@ class HttpServer {
   }
 
   listen() {
-    this.app.listen(5001, () => console.log("Listening to 5001"));
+    this.app.listen(5001, USER_API_DOMAIN, () => console.log("Listening to 5001"));
   }
 
   middlewares() {
