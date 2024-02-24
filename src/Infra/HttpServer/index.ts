@@ -9,11 +9,15 @@ import YAML from "yamljs";
 import { AppError } from "../../ErrorHandler/AppError";
 import "../../Configs/Enviroment";
 import { apiRoutes } from "../../Routes";
-import { CAR_SITE_FRONTEND_URL, USER_API_DOMAIN } from "../../Configs/Enviroment/EnviromentVariables";
+import {
+  CAR_SITE_FRONTEND_URL,
+  NODE_ENV,
+  USER_API_DOMAIN,
+} from "../../Configs/Enviroment/EnviromentVariables";
 import { rabbitMq } from "../../Queue/RabbitMq";
 class HttpServer {
   app: express.Express;
-  private corsOrigins = [CAR_SITE_FRONTEND_URL, "http://localhost:3000"]
+  private corsOrigins = [CAR_SITE_FRONTEND_URL, "http://localhost:3000"];
   constructor() {
     this.app = express();
     this.middlewares();
@@ -46,7 +50,13 @@ class HttpServer {
   }
 
   listen() {
-    this.app.listen(5001, USER_API_DOMAIN, () => console.log("Listening to 5001"));
+    if (NODE_ENV === "development") {
+      this.app.listen(5001, USER_API_DOMAIN, () =>
+        console.log("Listening to 5001")
+      );
+    } else {
+      this.app.listen(5001, () => console.log("Listening to 5001"));
+    }
   }
 
   middlewares() {
@@ -81,9 +91,7 @@ class HttpServer {
 
   defaultHeaders() {
     this.app.use((req, res, next) => {
-      const origin = this.corsOrigins.includes(
-        req.header("origin")
-      )
+      const origin = this.corsOrigins.includes(req.header("origin"))
         ? req.headers.origin
         : null;
       res.setHeader("Access-Control-Allow-Credentials", "true");
