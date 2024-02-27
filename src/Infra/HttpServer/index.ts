@@ -72,7 +72,7 @@ class HttpServer {
   }
 
   routes() {
-    this.app.use("/api", apiRoutes);
+    this.app.use("/user_api", apiRoutes);
   }
 
   errorHandler() {
