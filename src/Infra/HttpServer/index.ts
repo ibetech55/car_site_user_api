@@ -50,13 +50,7 @@ class HttpServer {
   }
 
   listen() {
-    if (NODE_ENV === "development") {
-      this.app.listen(5001, USER_API_DOMAIN, () =>
-        console.log("Listening to 5001")
-      );
-    } else {
-      this.app.listen(5001, () => console.log("Listening to 5001"));
-    }
+    this.app.listen(5001, () => console.log("Listening to 5001"));
   }
 
   middlewares() {

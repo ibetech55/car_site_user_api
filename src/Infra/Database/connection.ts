@@ -18,8 +18,6 @@ const AppDataSource = new DataSource({
   logging: false,
   entities: [Users, Addresses, Dealersrhips, PrivateUsers, Access],
   migrations: [`${__dirname}/**/Migrations/*.{ts,js}`],
-  ssl:{
-    rejectUnauthorized: false
-  }
+  ssl: false
 });
 export { AppDataSource };

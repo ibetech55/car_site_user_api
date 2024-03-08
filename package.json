@@ -35,7 +35,6 @@
     "morgan": "^1.10.0",
     "nock": "^13.3.6",
     "pg": "^8.10.0",
-    "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.1.13",
     "supertest": "^6.3.3",
     "swagger-jsdoc": "^6.2.8",

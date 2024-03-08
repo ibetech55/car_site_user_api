@@ -4796,13 +4796,6 @@
   "resolved" "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.6.2.tgz"
   "version" "2.6.2"
 
-"pg-hstore@^2.3.4":
-  "integrity" "sha512-N3SGs/Rf+xA1M2/n0JBiXFDVMzdekwLZLAO0g7mpDY9ouX+fDI7jS6kTq3JujmYbtNSJ53TJ0q4G98KVZSM4EA=="
-  "resolved" "https://registry.npmjs.org/pg-hstore/-/pg-hstore-2.3.4.tgz"
-  "version" "2.3.4"
-  dependencies:
-    "underscore" "^1.13.1"
-
 "pg-int8@1.0.1":
   "integrity" "sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw=="
   "resolved" "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz"
@@ -5653,11 +5646,6 @@
   "integrity" "sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w=="
   "resolved" "https://registry.npmjs.org/typescript/-/typescript-5.2.2.tgz"
   "version" "5.2.2"
-
-"underscore@^1.13.1":
-  "integrity" "sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A=="
-  "resolved" "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz"
-  "version" "1.13.6"
 
 "undici-types@~5.26.4":
   "integrity" "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
