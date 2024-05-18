@@ -27,8 +27,15 @@ import { IAccessRepository } from "../../../Repositories/Access/IAccessRepositor
 import { REGISTER_DEALERSHIP_ACCESS_CODE } from "../../../Configs/Constants/AccessTypes";
 import { GetUserMapper } from "../../../Mappers/GetUserMapper";
 import { HandleToken } from "../../../Utils/HandleToken";
-import { ACCESS_CODE_SECRET_KEY, CREATED_USER_SECRET_KEY } from "../../../Configs/Enviroment/EnviromentVariables";
+import {
+  ACCESS_CODE_SECRET_KEY,
+  CREATED_USER_SECRET_KEY,
+} from "../../../Configs/Enviroment/EnviromentVariables";
 import { ACCOUNT_CREATED } from "../../../Configs/Constants/AccountStatus";
+import {
+  GetLonLatByZipCode,
+  GetLonLatByZipCodeDto,
+} from "../../../Utils/GetLatLonByZipCode";
 
 class CreateDealershipUseCase {
   private readonly _dealershipRepository: IDealershipRepository;
@@ -41,6 +48,7 @@ class CreateDealershipUseCase {
   private readonly _fileHandler: FileHandler;
   private readonly _generateImageName: GenerateImageName;
   private readonly _handleToken: HandleToken;
+  private readonly _getLatLonByZipCode: GetLonLatByZipCode;
 
   constructor(
     dealershipRepository: IDealershipRepository,
@@ -52,7 +60,8 @@ class CreateDealershipUseCase {
     generatePassword: GeneratePassword,
     fileHandler: FileHandler,
     generateImageName: GenerateImageName,
-    handleToken: HandleToken
+    handleToken: HandleToken,
+    getLatLonByZipCode: GetLonLatByZipCode
   ) {
     this._dealershipRepository = dealershipRepository;
     this._userRepository = userRepository;
@@ -64,6 +73,7 @@ class CreateDealershipUseCase {
     this._fileHandler = fileHandler;
     this._generateImageName = generateImageName;
     this._handleToken = handleToken;
+    this._getLatLonByZipCode = getLatLonByZipCode;
   }
 
   async execute(
@@ -75,7 +85,7 @@ class CreateDealershipUseCase {
       userRequestData.email
     );
     if (checkEmail) {
-      throw new AppError("E-mail already exists", 400);
+      throw new AppError({ emailError: "E-mail already exists" }, 400);
     }
     let dealershipLogo: UploadedFile;
     let imageName: string;
@@ -86,12 +96,22 @@ class CreateDealershipUseCase {
       );
     }
 
-    const addreddRequestData = userRequestData.address as CreateAddressDto;
+    const addressRequestData = userRequestData.address as CreateAddressDto;
+    const coordsData: GetLonLatByZipCodeDto =
+      await this._getLatLonByZipCode.execute(addressRequestData.zipCode);
+    if (!coordsData) {
+      throw new AppError(
+        { zipCodeError: "Zip Code does not exist" },
+        400
+      );
+    }
     const addressData = await this._addressRepository.create({
-      state: addreddRequestData.state,
-      city: addreddRequestData.city,
-      street: addreddRequestData.street,
-      zip_code: addreddRequestData.zipCode,
+      state: addressRequestData.state,
+      city: addressRequestData.city,
+      street: addressRequestData.street,
+      zip_code: addressRequestData.zipCode,
+      latitude: coordsData.latitude,
+      longitude: coordsData.longitude,
     });
 
     const userData: Users = await this._userRepository.create({

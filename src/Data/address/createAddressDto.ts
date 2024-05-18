@@ -10,4 +10,6 @@ export interface CreateAddressDto {
     state: string;
     street: string;
     zip_code: string;
+    longitude: number;
+    latitude: number;
   }

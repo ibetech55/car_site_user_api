@@ -15,5 +15,6 @@ export const CREATED_USER_SECRET_KEY = process.env.CREATED_USER_SECRET_KEY;
 export const USER_API_DOMAIN = process.env.USER_API_DOMAIN
 export const NODE_ENV = process.env.NODE_ENV
 export const RABBITMQ_URL = process.env.RABBITMQ_URL;
+export const LOCATION_API_URL = process.env.LOCATION_API_URL;
 
 

@@ -8,6 +8,7 @@ import { UserRepository } from "../../../Repositories/User/user.repository";
 import { FileHandler } from "../../../Utils/FileHandler";
 import { GenerateImageName } from "../../../Utils/GenerateImageName";
 import { GeneratePassword } from "../../../Utils/GeneratePassword";
+import { GetLonLatByZipCode } from "../../../Utils/GetLatLonByZipCode";
 import { HandleAccesCode } from "../../../Utils/HandleAccesCode";
 import { HandleToken } from "../../../Utils/HandleToken";
 
@@ -20,7 +21,7 @@ const fileHandler = new FileHandler();
 const generateImageName = new GenerateImageName();
 const accessRepository = new AccessRepository();
 const handleToken = new HandleToken();
-
+const getLatLonByZipCode = new GetLonLatByZipCode();
 const createDealershipUseCase = new CreateDealershipUseCase(
   dealershipRepository,
   userRepository,
@@ -31,7 +32,8 @@ const createDealershipUseCase = new CreateDealershipUseCase(
   generatePassword,
   fileHandler,
   generateImageName,
-  handleToken
+  handleToken,
+  getLatLonByZipCode
 );
 const createDealershipController = new CreateDealershipController(
   createDealershipUseCase

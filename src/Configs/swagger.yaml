@@ -14,7 +14,7 @@ servers:
   - url: http://localhost:5001
     description: Development server
 paths:
-  "/api/user":
+  "/user_api/user":
     get:
       summary: Get a list of all users
       tags:
@@ -28,7 +28,7 @@ paths:
                 type: array
                 items:
                   "$ref": "#/components/schemas/User"
-  "/api/user/{id}":
+  "/user_api/user/{id}":
     get:
       summary: Get a user by id
       tags:
@@ -60,7 +60,7 @@ paths:
                     type: boolean
                   createdAt:
                     type: string
-  "/api/user/confirmCreatedUser/{token}":
+  "/user_api/user/confirmCreatedUser/{token}":
     get:
       summary: Confirm created user
       tags:
@@ -81,7 +81,7 @@ paths:
                 type: boolean
         "400":
           description: Bad request  
-  "/api/user/changeUserPassword/{id}":
+  "/user_api/user/changeUserPassword/{id}":
     put:
       summary: Change User Password
       tags:
@@ -107,7 +107,7 @@ paths:
           description: Password updated
         "400":
           description: Bad request
-  "/api/user/getByEmail/{email}":
+  "/user_api/user/getByEmail/{email}":
     get:
       summary: Get a user by email
       tags:
@@ -126,7 +126,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/User"
-  "/api/user/loggedUser/{id}":
+  "/user_api/user/loggedUser/{id}":
     get:
       summary: Get Logged User
       tags:
@@ -154,7 +154,7 @@ paths:
                     type: string              
         "400":
           description: Bad request
-  "/api/dealership":
+  "/user_api/dealership":
     post:
       summary: Create a new dealership
       tags: 
@@ -194,7 +194,11 @@ paths:
                         street:
                           type: string
                         zipCode:
-                          type: string                     
+                          type: string
+                        latitude:
+                          type: string
+                        longitude:
+                          type: string                  
       responses:
         "201":
           description: Dealership created successfully
@@ -207,7 +211,7 @@ paths:
       responses:
         "200":
           description: Successful response
-  "/api/dealership/{id}":
+  "/user_api/dealership/{id}":
     get:
       summary: Get a dealership by id
       tags:
@@ -284,7 +288,7 @@ paths:
       responses:
         "200":
           description: Successfully deleted
-  "/api/privateUser":
+  "/user_api/privateUser":
     post:
       summary: Create a new private user
       tags: 
@@ -339,7 +343,7 @@ paths:
       responses:
         "200":
           description: Successful response
-  "/api/privateUser/{id}":
+  "/user_api/privateUser/{id}":
     get:
       summary: Get a private user by id
       tags:
@@ -418,7 +422,7 @@ paths:
       responses:
         "200":
           description: Successfully deleted
-  "/api/access/confirmAccessCode/{id}":
+  "/user_api/access/confirmAccessCode/{id}":
     put:
       summary: Confirm User Access Code
       tags:
@@ -448,7 +452,7 @@ paths:
                 type: boolean
         "400":
           description: Bad request
-  "/api/access/{token}":
+  "/user_api/access/{token}":
     get:
       summary: Get by access code token
       tags:

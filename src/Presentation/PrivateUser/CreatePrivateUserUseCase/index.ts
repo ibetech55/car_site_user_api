@@ -23,9 +23,13 @@ import { HandleAccesCode } from "../../../Utils/HandleAccesCode";
 import { IAccessRepository } from "../../../Repositories/Access/IAccessRepository";
 import { REGISTER_PRIVATE_USER_ACCESS_CODE } from "../../../Configs/Constants/AccessTypes";
 import { GetCreatedUser } from "../../../Data/Dealership/CreateDealershipDto";
-import { ACCESS_CODE_SECRET_KEY, CREATED_USER_SECRET_KEY } from "../../../Configs/Enviroment/EnviromentVariables";
+import {
+  ACCESS_CODE_SECRET_KEY,
+  CREATED_USER_SECRET_KEY,
+} from "../../../Configs/Enviroment/EnviromentVariables";
 import { HandleToken } from "../../../Utils/HandleToken";
 import { ACCOUNT_CREATED } from "../../../Configs/Constants/AccountStatus";
+import { GetLonLatByZipCode } from "../../../Utils/GetLatLonByZipCode";
 
 export class CreatePrivateUserUseCase {
   private readonly _privateUserRepository: IPrivateUserRepository;
@@ -38,6 +42,7 @@ export class CreatePrivateUserUseCase {
   private readonly _fileHandler: FileHandler;
   private readonly _generateImageName: GenerateImageName;
   private readonly _handleToken: HandleToken;
+  private readonly _getLatLonByZipCode: GetLonLatByZipCode;
 
   constructor(
     privateUserRepository: IPrivateUserRepository,
@@ -49,7 +54,8 @@ export class CreatePrivateUserUseCase {
     generatePassword: GeneratePassword,
     fileHandler: FileHandler,
     generateImageName: GenerateImageName,
-    handleToken: HandleToken
+    handleToken: HandleToken,
+    getLatLonByZipCode: GetLonLatByZipCode
   ) {
     this._privateUserRepository = privateUserRepository;
     this._userRepository = userRepository;
@@ -61,15 +67,19 @@ export class CreatePrivateUserUseCase {
     this._fileHandler = fileHandler;
     this._generateImageName = generateImageName;
     this._handleToken = handleToken;
+    this._getLatLonByZipCode = getLatLonByZipCode;
   }
 
-  async execute(values: CreatePrivateUserDto, file?: FileArray): Promise<string> {
+  async execute(
+    values: CreatePrivateUserDto,
+    file?: FileArray
+  ): Promise<string> {
     const userRequestData: CreateUserDto = JSON.parse(values.user as string);
     const checkEmail = await this._userRepository.getUserByEmail(
       userRequestData.email
     );
     if (checkEmail) {
-      throw new AppError("E-mail already exists", 400);
+      throw new AppError({ emailError: "E-mail already exists" }, 400);
     }
     let userImage: UploadedFile;
     let imageName: string;
@@ -80,13 +90,23 @@ export class CreatePrivateUserUseCase {
       );
     }
 
-
-    const addreddRequestData = userRequestData.address as CreateAddressDto;
+    const addressRequestData = userRequestData.address as CreateAddressDto;
+    const coordsData = await this._getLatLonByZipCode.execute(
+      addressRequestData.zipCode
+    );
+    if (!coordsData) {
+      throw new AppError(
+        { zipCodeError: "Zip Code does not exist" },
+        400
+      );
+    }
     const addressData = await this._addressRepository.create({
-      state: addreddRequestData.state,
-      city: addreddRequestData.city,
-      street: addreddRequestData.street,
-      zip_code: addreddRequestData.zipCode,
+      state: addressRequestData.state,
+      city: addressRequestData.city,
+      street: addressRequestData.street,
+      zip_code: addressRequestData.zipCode,
+      latitude: coordsData.latitude,
+      longitude: coordsData.longitude,
     });
 
     const userData: Users = await this._userRepository.create({
@@ -98,9 +118,8 @@ export class CreatePrivateUserUseCase {
       ),
       active: false,
       account_status: ACCOUNT_CREATED,
-      address_id: addressData._id
+      address_id: addressData._id,
     });
-
 
     const privateUserData = await this._privateUserRepository.create({
       first_name: values.firstName,
@@ -145,17 +164,14 @@ export class CreatePrivateUserUseCase {
       access_code: accessData.access_code,
     });
 
-    this._rabbitMq.publish<RegisterCarUserProviderDto>(
-      REGISTER_USER_CAR_API,
-      {
-        user_id: userData._id,
-        first_name: privateUserData.first_name,
-        last_name: privateUserData.last_name,
-        email: userData.email,
-        type: userData.user_type,
-        phone_number: userData.phone_number,
-      }
-    );
+    this._rabbitMq.publish<RegisterCarUserProviderDto>(REGISTER_USER_CAR_API, {
+      user_id: userData._id,
+      first_name: privateUserData.first_name,
+      last_name: privateUserData.last_name,
+      email: userData.email,
+      type: userData.user_type,
+      phone_number: userData.phone_number,
+    });
 
     const createdUserToken = this._handleToken.generateToken<GetCreatedUser>(
       {

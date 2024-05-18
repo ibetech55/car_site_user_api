@@ -20,6 +20,12 @@ class Addresses {
   @Column()
   street: string;
 
+  @Column()
+  latitude: number;
+  
+  @Column()
+  longitude: number;
+
   @CreateDateColumn()
   created_at?: Date;
 
